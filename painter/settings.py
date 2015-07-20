@@ -7,6 +7,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEBUG = bool(os.environ.get('DEBUG', False))
 
 INSTALLED_APPS = (
+    'painter',
+
     'django.contrib.contenttypes',
     'django.contrib.messages',
     'django.contrib.staticfiles',
@@ -50,3 +52,5 @@ USE_TZ = False
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static_files')
 STATIC_URL = os.environ.get('STATIC_URL', '/static/')
+
+TEST_RUNNER = 'painter.tests.runner.TestRunner'
