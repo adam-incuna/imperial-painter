@@ -6,16 +6,22 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 DEBUG = bool(os.environ.get('DEBUG', False))
 
+ALLOWED_HOSTS = ['*']
+
 INSTALLED_APPS = (
     'painter',
 
+    'django_extensions',
+
     'django.contrib.contenttypes',
     'django.contrib.messages',
+    'django.contrib.sessions',
     'django.contrib.staticfiles',
 )
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
 )
 
