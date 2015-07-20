@@ -1,5 +1,8 @@
 import factory
 
+from django.contrib.auth.models import User
+from incuna_test_utils.factories.user import BaseUserFactory
+
 from .. import models
 
 
@@ -10,3 +13,9 @@ class CardFactory(factory.DjangoModelFactory):
 
     class Meta:
         model = models.Card
+
+
+class UserFactory(BaseUserFactory):
+    """Used for creating requests in view tests."""
+    class Meta:
+        model = User
