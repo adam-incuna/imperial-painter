@@ -1,7 +1,21 @@
+<!DOCTYPE html>
 <html>
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+    <style>
+        // Modify Browserstack's behaviour a wee bit
+        @grid-gutter-width: 10px;
+    </style>
+</head>
+
 <body>
-{% for object in object_list %}
-    {% include 'painter/card_wrapper.html' %}
-{% endfor %}
+    <div class="container">
+        {% for object in object_list %}
+            <div id="card-{{ forloop.counter }}" class="col-lg-4">
+                {% include 'painter/card_wrapper.html' %}
+            </div>
+        {% endfor %}
+    </div>
 </body>
 </html>
