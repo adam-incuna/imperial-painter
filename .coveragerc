@@ -1,0 +1,3 @@
+[run]
+source = painter
+omit = *tests*, *migrations*, manage.py, painter/wsgi.py, painter/settings.py
