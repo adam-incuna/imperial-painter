@@ -1,4 +1,11 @@
+/* layout.css - Lays out cards so they're the right size, have borders, etc.
+
+    User hooks:
+       .full-card - Sizes something to fit an entire card.  Useful for background <div>s.
+*/
+
 body {
+    /* Let's use a generic, concise, easily-readable font. */
     font-family: "Arial";
 }
 
