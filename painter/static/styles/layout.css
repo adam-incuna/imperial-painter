@@ -10,7 +10,8 @@ body {
 }
 
 .spoiler {
-    /* The full card table. */
+    /* The full card table.  Displays a thin grey line between cards as a guideline
+       for cutting and as a visual separator. */
     padding: 0px;
     border-spacing: 2px solid gray;
     background-color: gray;
