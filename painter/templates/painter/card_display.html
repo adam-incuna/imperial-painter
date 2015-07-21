@@ -1,7 +1,25 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
 <html>
+<head>
+    <link rel="stylesheet" href="{% static "styles/layout.css" %}">
+</head>
+
 <body>
-{% for object in object_list %}
-    {% include 'painter/card_wrapper.html' %}
-{% endfor %}
+    <table class="spoiler">
+        <tr>
+            {% for object in object_list %}
+                <td id="card-{{ forloop.counter }}" class="card-cell">
+                    {% include 'painter/card_wrapper.html' %}
+                </td>
+
+                {% if forloop.counter|divisibleby:3 %}
+                    </tr>
+                    <tr>
+                {% endif %}
+            {% endfor %}
+        </tr>
+    </table>
 </body>
 </html>

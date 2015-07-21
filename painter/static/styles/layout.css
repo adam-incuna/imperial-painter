@@ -1,0 +1,50 @@
+/* layout.css - Lays out cards so they're the right size, have borders, etc.
+
+    User hooks:
+       .full-card - Sizes something to fit an entire card.  Useful for background <div>s.
+*/
+
+body {
+    /* Let's use a generic, concise, easily-readable font. */
+    font-family: "Arial";
+}
+
+.spoiler {
+    /* The full card table.  Displays a thin grey line between cards as a guideline
+       for cutting and as a visual separator. */
+    padding: 0px;
+    border-spacing: 2px solid gray;
+    background-color: gray;
+}
+
+.card-cell {
+    /* Apply a thick black border around each card to aid visually and with
+       cutting out sheets of printed cards. */
+    border: 0.9em solid black;
+    vertical-align: top;
+    position: relative;
+    background-color: #fff;
+}
+
+.card-cell, .card-wrapper, .full-card {
+    /* Fix the sizes of all card-sized things and ensure they're unpadded. */
+    width: 18.3em;
+    height: 26.2em;
+    padding: 0px;
+    margin: 0px;
+}
+
+.card-wrapper, .full-card {
+    /* Fix the positions of card-wrapping <div>s to ensure the objects inside them don't
+       push the card out of place or break the formatting. */
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    display: block;
+    overflow: hidden;
+}
+
+.card-wrapper * {
+    /* Non-explicit margins are going to get in the way and mess with formatting. */
+    margin: 0px;
+}
