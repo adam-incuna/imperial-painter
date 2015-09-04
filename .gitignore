@@ -6,3 +6,6 @@ __pycache__/
 .cache
 
 painter/templates/custom/*.html
+
+*.xls*
+*.csv
