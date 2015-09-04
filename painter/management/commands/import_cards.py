@@ -30,7 +30,7 @@ class Command(BaseCommand):
             for header in headers
         ]
 
-    def open_csv_file(self, filename):
+    def open_csv_file(self, filename):  # pragma: nocover - way too much hassle to test
         """Return the contents of a CSV file.  Separated out for testing purposes."""
         filename = self.ensure_extension(filename, 'csv')
         with open(filename, 'r') as csv_file:
@@ -48,37 +48,60 @@ class Command(BaseCommand):
             dataset.headers = self.safe_headers(dataset.headers)
             python_data = dataset.dict
 
-            # Create the cards!
-            cards_created = []
-            for entry in python_data:
-                cards_created.append(Card.objects.create(
-                    name=entry.pop('name'),
-                    template_name=self.ensure_extension(entry.pop('template'), 'html'),
-                    data=entry,  # the 'name' and 'template_name' have been removed, woo!
-                ))
-
-            # Go no further if nothing was done!
-            if not cards_created:
+            # Go no further if we don't have any data.
+            if not python_data:  # pragma: nocover
                 print('No cards were created.')
                 return
 
-            # Parse entries containing newlines into lists, separated by those newlines.
-            # For consistency, everything else under the same column name also has to be
-            # transmuted into a list.
-            data_keys = cards_created[0].data.keys()
-            list_keys = []
-            for key in data_keys:
-                # Find out if this column has been used for list data somewhere.
-                is_list = False
-                for card in cards_created:
-                    if '\n' in card.data[key]:
-                        is_list = True
-                        break
+            # Deal properly with columns that hold lists, which CSV doesn't support.
+            self.parse_list_columns(python_data)
 
-                if is_list:
-                    list_keys.append(key)
+            # Create the cards!
+            for entry in python_data:
+                Card.objects.create(
+                    name=entry.pop('name'),
+                    template_name=self.ensure_extension(entry.pop('template'), 'html'),
+                    data=entry,  # the 'name' and 'template_name' have been removed, woo!
+                )
 
-            for card in cards_created:
-                for key in list_keys:
-                    card.data[key] = card.data[key].split('\n')
-                card.save()
+
+    def parse_list_columns(self, python_data):
+        """
+        Parse columns in python_data that contain newlines into lists.
+
+        CSV doesn't support lists natively, so I've added a workaround: any data field
+        in your Excel spreadsheet or CSV file can be turned into a list by putting
+        newlines between the list entries.  For instance, separate abilities in a card's
+        rules text box can live in a single column, separated by newlines, and will be
+        stored as a list inside imperial-painter.  This means you can iterate over them,
+        deal smoothly with different numbers of abilities between different cards, and
+        so on.
+
+        We can just use split() to do the actual parsing, but for consistency, everything
+        else under the same column name also has to be transmuted into a list.  This
+        means one-line and empty entries become singleton and empty lists respectively,
+        so you don't have to special-case your template code to avoid things like for
+        loops adding a separate block for each character in a one-line string.
+        """
+        data_keys = list(python_data[0].keys())
+        data_keys.remove('name')
+        data_keys.remove('template')
+        list_keys = []
+
+        for key in data_keys:
+            # Find out if this column has been used for list data somewhere.
+            is_list = False
+            for card in python_data:
+                if '\n' in card[key]:
+                    is_list = True
+                    break
+
+            if is_list:
+                list_keys.append(key)
+
+        for key in list_keys:
+            for card in python_data:
+                if not card[key]:
+                    card[key] = []
+                else:
+                    card[key] = card[key].split('\n')

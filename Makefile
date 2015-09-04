@@ -16,7 +16,6 @@ install:
 	python manage.py migrate
 
 test:
-	@flake8 .
 	@coverage run manage.py test --keepdb --verbosity=$(verbosity)
 	@coverage report -m
 
