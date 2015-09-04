@@ -86,22 +86,21 @@ class Command(BaseCommand):
         data_keys = list(python_data[0].keys())
         data_keys.remove('name')
         data_keys.remove('template')
-        list_keys = []
 
         for key in data_keys:
-            # Find out if this column has been used for list data somewhere.
             is_list = False
             for card in python_data:
                 if '\n' in card[key]:
-                    is_list = True
+                    self.make_list_column(python_data, key)
                     break
 
-            if is_list:
-                list_keys.append(key)
-
-        for key in list_keys:
-            for card in python_data:
-                if not card[key]:
-                    card[key] = []
-                else:
-                    card[key] = card[key].split('\n')
+    def make_list_column(self, python_data, column_key):
+        """
+        Helper method for parse_list_columns that turns all the entries in the named
+        column into lists.
+        """
+        for card in python_data:
+            if not card[column_key]:
+                card[column_key] = []
+            else:
+                card[column_key] = card[column_key].split('\n')
