@@ -46,9 +46,36 @@ class Command(BaseCommand):
             python_data = dataset.dict
 
             # Create the cards!
+            cards_created = []
             for entry in python_data:
-                new_card = Card.objects.create(
+                cards_created.append(Card.objects.create(
                     name=entry.pop('name'),
                     template_name=self.ensure_extension(entry.pop('template'), 'html'),
                     data=entry,  # the 'name' and 'template_name' have been removed, woo!
-                )
+                ))
+
+            # Go no further if nothing was done!
+            if not cards_created:
+                print('No cards were created.')
+                return
+
+            # Parse entries containing newlines into lists, separated by those newlines.
+            # For consistency, everything else under the same column name also has to be
+            # transmuted into a list.
+            data_keys = cards_created[0].data.keys()
+            list_keys = []
+            for key in data_keys:
+                # Find out if this column has been used for list data somewhere.
+                is_list = False
+                for card in cards_created:
+                    if '\n' in card.data[key]:
+                        is_list = True
+                        break
+
+                if is_list:
+                    list_keys.append(key)
+
+            for card in cards_created:
+                for key in list_keys:
+                    card.data[key] = card.data[key].split('\n')
+                card.save()
