@@ -30,14 +30,17 @@ class Command(BaseCommand):
             for header in headers
         ]
 
+    def open_csv_file(self, filename):
+        """Return the contents of a CSV file.  Separated out for testing purposes."""
+        filename = self.ensure_extension(filename, 'csv')
+        with open(filename, 'r') as csv_file:
+            file_contents = csv_file.read()
+
     def handle(self, *args, **options):
         Card.objects.all().delete()
 
         for filename in options['filenames']:
-            # Open the CSV file.
-            filename = self.ensure_extension(filename, 'csv')
-            with open(filename, 'r') as csv_file:
-                file_contents = csv_file.read()
+            file_contents = self.open_csv_file(filename)
 
             # Load the CSV data and ensure it's safe for Python and template use.
             dataset = tablib.Dataset()
