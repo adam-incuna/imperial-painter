@@ -23,7 +23,10 @@ class Command(BaseCommand):
         return filename + '.csv'
 
     def handle(self, *args, **options):
-        dataset = tablib.Dataset()
         for filename in options['filenames']:
             filename = self.ensure_csv_extension(filename)
-            print(filename)
+            dataset = tablib.Dataset()
+            with open(filename, 'r') as csv_file:
+                file_contents = csv_file.read()
+                dataset.csv = file_contents
+                print(dataset.json)
