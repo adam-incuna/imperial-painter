@@ -16,7 +16,14 @@ class Command(BaseCommand):
             help='One or more CSV file names. The extension is optional.',
         )
 
+    def ensure_csv_extension(self, filename):
+        """Add '.csv' onto the end of filename if it isn't already there."""
+        if filename.endswith('.csv'):
+            return filename
+        return filename + '.csv'
+
     def handle(self, *args, **options):
         dataset = tablib.Dataset()
         for filename in options['filenames']:
+            filename = self.ensure_csv_extension(filename)
             print(filename)
