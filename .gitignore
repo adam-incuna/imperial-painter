@@ -8,4 +8,4 @@ __pycache__/
 painter/templates/custom/*.html
 
 *.xls*
-*.csv
+*.csv*
