@@ -35,12 +35,14 @@ class Command(BaseCommand):
         filename = self.ensure_extension(filename, 'csv')
         with open(filename, 'r') as csv_file:
             file_contents = csv_file.read()
+        return file_contents
 
     def handle(self, *args, **options):
         Card.objects.all().delete()
 
         for filename in options['filenames']:
             file_contents = self.open_csv_file(filename)
+            print(file_contents)
 
             # Load the CSV data and ensure it's safe for Python and template use.
             dataset = tablib.Dataset()
