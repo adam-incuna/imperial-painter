@@ -42,7 +42,6 @@ class Command(BaseCommand):
 
         for filename in options['filenames']:
             file_contents = self.open_csv_file(filename)
-            print(file_contents)
 
             # Load the CSV data and ensure it's safe for Python and template use.
             dataset = tablib.Dataset()
