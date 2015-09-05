@@ -16,6 +16,11 @@
 
                 {% if forloop.counter|divisibleby:3 %}
                     </tr>
+                    {% if forloop.counter|divisibleby:9 %}
+                        </table>
+                        <div class="page-break"></div>
+                        <table class="spoiler">
+                    {% endif %}
                     <tr>
                 {% endif %}
             {% endfor %}

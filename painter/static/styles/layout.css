@@ -9,6 +9,16 @@ body {
     font-family: "Arial";
 }
 
+@media all {
+    /* We don't want page breaks to show up normally... */
+    .page-break { display: none; }
+}
+
+@media print {
+    /* ...but we'll need them when printing, for sure. */
+    .page-break { display: block; page-break-before: always; }
+}
+
 .spoiler {
     /* The full card table.  Displays a thin grey line between cards as a guideline
        for cutting and as a visual separator. */
