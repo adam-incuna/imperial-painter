@@ -4,5 +4,6 @@ from . import views
 
 
 urlpatterns = [
-    url(r'^$', views.CardDisplay.as_view(), name='card_display')
+    url(r'^noreload$', views.CardDisplay.as_view(), name='card_display_noreload'),
+    url(r'^$', views.CardDisplay.as_view(), name='card_display'),
 ]
