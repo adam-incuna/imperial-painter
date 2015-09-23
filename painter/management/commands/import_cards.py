@@ -1,7 +1,7 @@
 import tablib
 from django.core.management.base import BaseCommand
 
-from painter.models import Card
+from painter.models import Card, CsvFile
 
 
 class Command(BaseCommand):
@@ -11,7 +11,7 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument(
             'filenames',
-            nargs='+',
+            nargs='*',
             type=str,
             help='One or more CSV file names. The extension is optional.',
         )
@@ -32,15 +32,28 @@ class Command(BaseCommand):
 
     def open_csv_file(self, filename):  # pragma: nocover - way too much hassle to test
         """Return the contents of a CSV file.  Separated out for testing purposes."""
-        filename = self.ensure_extension(filename, 'csv')
         with open(filename, 'r') as csv_file:
             file_contents = csv_file.read()
         return file_contents
 
     def handle(self, *args, **options):
+        # If no filenames are supplied, use the stored ones
+        # (then delete them anyway so they get regenerated).
+        filenames = options['filenames']
+        if not filenames:
+            filenames = [cf.name for cf in CsvFile.objects.all()]
+
+        # Clear all existing data.
+        CsvFile.objects.all().delete()
         Card.objects.all().delete()
 
-        for filename in options['filenames']:
+        # Import!
+        for filename in filenames:
+            filename = self.ensure_extension(filename, 'csv')
+            if options['verbosity']:
+                print("Loading {}".format(filename))
+
+            CsvFile.objects.create(name=filename)
             file_contents = self.open_csv_file(filename)
 
             # Load the CSV data and ensure it's safe for Python and template use.

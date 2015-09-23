@@ -18,7 +18,7 @@ class TestImportCards(TestCase):
         with mock.patch.object(Command, 'open_csv_file', return_value=csv_file):
             # We have to supply a file, but it will be ignored since we're mocking out
             # the open_csv_file method.
-            call_command('import_cards', 'nonexistent_file.csv')
+            call_command('import_cards', 'nonexistent_file.csv', verbosity=0)
 
         return {card.name: card for card in Card.objects.all()}
 
