@@ -50,7 +50,7 @@ class Command(BaseCommand):
         # Import!
         for filename in filenames:
             filename = self.ensure_extension(filename, 'csv')
-            if options['verbosity']:
+            if options['verbosity']:  # pragma: nocover - this is here to make tests quiet
                 print("Loading {}".format(filename))
 
             CsvFile.objects.create(name=filename)
