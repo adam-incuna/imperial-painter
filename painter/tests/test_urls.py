@@ -4,11 +4,11 @@ from .. import views
 
 
 class TestPainterURLs(URLTestCase):
-    def test_card_display(self):
+    def test_card_display_reload(self):
         self.assert_url_matches_view(
-            view=views.CardDisplay,
+            view=views.CardDisplayReload,
             expected_url='/',
-            url_name='card_display',
+            url_name='card_display_reload',
         )
 
     def test_card_display_noreload(self):
