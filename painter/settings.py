@@ -58,7 +58,7 @@ DATABASES['default']['ATOMIC_REQUESTS'] = True
 LANGUAGE_CODE = 'en-gb'
 USE_TZ = False
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'static_files')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = os.environ.get('STATIC_URL', '/static/')
 
 TEST_RUNNER = 'painter.tests.runner.TestRunner'

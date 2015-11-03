@@ -65,7 +65,6 @@ class Command(BaseCommand):
                     data=entry,  # the 'name' and 'template_name' have been removed, woo!
                 )
 
-
     def parse_list_columns(self, python_data):
         """
         Parse columns in python_data that contain newlines into lists.
@@ -89,7 +88,6 @@ class Command(BaseCommand):
         data_keys.remove('template')
 
         for key in data_keys:
-            is_list = False
             for card in python_data:
                 if '\n' in card[key]:
                     self.make_list_column(python_data, key)
