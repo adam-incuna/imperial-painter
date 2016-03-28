@@ -67,52 +67,37 @@ class Command(BaseCommand):
                 print('No cards were created.')
                 return
 
-            # Deal properly with columns that hold lists, which CSV doesn't support.
-            self.parse_list_columns(python_data)
-
             # Create the cards!
             for entry in python_data:
                 Card.objects.create(
                     name=entry.pop('name'),
                     template_name=self.ensure_extension(entry.pop('template'), 'html'),
-                    data=entry,  # the 'name' and 'template_name' have been removed, woo!
+                    # The 'name' and 'template_name' have been removed, woo!
+                    # We still need to deal with list columns though.
+                    data=self.parse_card_data(entry),
                 )
 
-    def parse_list_columns(self, python_data):
+    def parse_card_data(self, card_data):
         """
         Parse columns in python_data that contain newlines into lists.
 
         CSV doesn't support lists natively, so I've added a workaround: any data field
-        in your Excel spreadsheet or CSV file can be turned into a list by putting
-        newlines between the list entries.  For instance, separate abilities in a card's
-        rules text box can live in a single column, separated by newlines, and will be
-        stored as a list inside imperial-painter.  This means you can iterate over them,
-        deal smoothly with different numbers of abilities between different cards, and
-        so on.
-
-        We can just use split() to do the actual parsing, but for consistency, everything
-        else under the same column name also has to be transmuted into a list.  This
-        means one-line and empty entries become singleton and empty lists respectively,
-        so you don't have to special-case your template code to avoid things like for
-        loops adding a separate block for each character in a one-line string.
+        in your Excel spreadsheet or CSV file can be turned into a list by preceding
+        the name of the column with an asterisk. "*Rules Text", for instance.  This will
+        affect every cell of the column regardless of its contents.
         """
-        data_keys = list(python_data[0].keys())
-        data_keys.remove('name')
-        data_keys.remove('template')
+        for key, value in card_data.items():
+            if key.startswith('*'):
+                # Add an empty list if the value is empty, just for consistency.
+                if not value:
+                    list_value = []
+                else:
+                    list_value = value.split('\n')
 
-        for key in data_keys:
-            for card in python_data:
-                if '\n' in card[key]:
-                    self.make_list_column(python_data, key)
-                    break
+                # Remove the original key from the card_data dictionary and replace it
+                # with a de-asterisk'd, listified version. Swish.
+                card_data.pop(key)
+                key_without_asterisk = key[1:]
+                card_data[key_without_asterisk] = list_value
 
-    def make_list_column(self, python_data, column_key):
-        """
-        Helper method for parse_list_columns that turns all the entries in the named
-        column into lists.
-        """
-        for card in python_data:
-            if not card[column_key]:
-                card[column_key] = []
-            else:
-                card[column_key] = card[column_key].split('\n')
+        return card_data
