@@ -43,13 +43,11 @@ class TestImportCards(TestCase):
 
         self.assertEqual(cards['no_html_extension'].template_name, 'test.html')
 
-    def test_newline_forms_lists_everywhere(self):
+    def test_list_columns(self):
         """
-        A column containing at least one entry with a newline in it is considered to have
-        a list type, so everything in that column is converted into a list, separated
-        by the newlines.
+        A column whose name begins with an asterisk is turned into a list.
         """
-        csv_data = 'name,template,Card Rules\n'
+        csv_data = 'name,template,*Card Rules\n'
         csv_data += 'non_newlined_rules,test,one_line\n'
         csv_data += 'newlined_rules,test,"new\nline"\n'
         csv_data += 'empty_rules,test,\n'
