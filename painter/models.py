@@ -18,6 +18,9 @@ class Card(models.Model):
             return self.template_name
         return 'custom/' + self.template_name
 
+    class Meta:
+        ordering = ['pk']
+
 
 class DataFile(models.Model):
     """Stores the name of a CSV file that data was loaded from."""
