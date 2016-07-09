@@ -7,6 +7,8 @@
 body {
     /* Let's use a generic, concise, easily-readable font. */
     font-family: "Arial";
+    /* Scale down by 70%, since everything else is sized using ems. */
+    font-size: 70%;
 }
 
 @media all {
@@ -17,6 +19,11 @@ body {
 @media print {
     /* ...but we'll need them when printing, for sure. */
     .page-break { display: block; page-break-before: always; }
+}
+
+@page {
+    /* Set the margin when printing. */
+    margin: 10mm 10mm 10mm 10mm;
 }
 
 .spoiler {
@@ -36,8 +43,8 @@ body {
     background-color: #fff;
 }
 
-.card-cell, .card-wrapper, .full-card {
-    /* Fix the sizes of all card-sized things and ensure they're unpadded. */
+.card-cell {
+    /* Fix the sizes of the cards and ensure they're unpadded. */
     width: 18.3em;
     height: 26.2em;
     padding: 0px;
@@ -47,6 +54,10 @@ body {
 .card-wrapper, .full-card {
     /* Fix the positions of card-wrapping <div>s to ensure the objects inside them don't
        push the card out of place or break the formatting. */
+    width: 100%;
+    height: 100%;
+    padding: 0px;
+    margin: 0px;
     position: absolute;
     top: 0px;
     left: 0px;
