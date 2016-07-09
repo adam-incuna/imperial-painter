@@ -1,7 +1,7 @@
-import tablib
 from django.core.management.base import BaseCommand
+from openpyxl import load_workbook
 
-from painter.models import Card, CsvFile
+from painter.models import Card, DataFile
 
 
 class Command(BaseCommand):
@@ -13,91 +13,149 @@ class Command(BaseCommand):
             'filenames',
             nargs='*',
             type=str,
-            help='One or more CSV file names. The extension is optional.',
+            help='One or more XLSX file names. The extension is optional.',
         )
 
     def ensure_extension(self, filename, extension):
-        """Add '.[extension]' onto the end of filename if it isn't already there."""
+        """Tag a filename with a given file format if it doesn't have one already."""
         extension = '.' + extension
         if filename.endswith(extension):
             return filename
         return filename + extension
 
-    def safe_headers(self, headers):
-        """Replace spaces with underscores and make everything lowercase."""
-        return [
-            header.lower().replace(' ', '_')
-            for header in headers
-        ]
+    def get_and_store_filenames(self, **options):
+        """
+        If no filenames are supplied, use the stored ones.  Otherwise, clear any stored
+        filenames and create new ones.
+        """
+        filenames = options['filenames']
 
-    def open_csv_file(self, filename):  # pragma: nocover - way too much hassle to test
-        """Return the contents of a CSV file.  Separated out for testing purposes."""
-        with open(filename, 'r') as csv_file:
-            file_contents = csv_file.read()
-        return file_contents
+        if not filenames:
+            filenames = [df.name for df in DataFile.objects.all()]
+        else:
+            DataFile.objects.all().delete()
+            for filename in filenames:
+                DataFile.objects.create(name=filename)
+
+        return filenames
+
+    def load_all_worksheets(self, filenames, verbosity=0):
+        """Open a given series of Excel files and return all their worksheets."""
+        all_sheets = []
+
+        for filename in filenames:
+            filename = self.ensure_extension(filename, 'xlsx')
+            if verbosity:
+                print("Loading {}".format(filename))
+
+            workbook = load_workbook(
+                filename=filename,
+                # read_only=True,  # read_only mode causes sharing violations...
+                data_only=True,  # Load the values computed by formulae, not the formulae
+                keep_vba=False,  # Throw away any VBA scripting
+            )
+            all_sheets += workbook.worksheets
+
+        return all_sheets
+
+    def convert_to_python(self, worksheet):
+        """
+        Turn an openpyxl worksheet into a list of dictionaries.
+
+        Each dictionary represents one card.
+
+        We need to do the following:
+        - Parse the headers into dict keys we can use safely in a Django template.
+        - Figure out which ones are supposed to be lists; any header preceded by an
+          asterisk denotes a list field.
+        - Convert each row into a dictionary, parsing any list field values
+          into lists along the way using `split(\n)`.
+        """
+        all_rows = list(worksheet.rows)
+        header_row = all_rows[0]
+        data_rows = all_rows[1:]
+
+        headers = []
+        is_list = []
+        for header_cell in header_row:
+            # Make it look like a variable name by forcing lowercase and replacing spaces
+            # with underscores.
+            header = header_cell.value
+            header = header.lower().replace(' ', '_')
+
+            # Any header preceded by an asterisk denotes a list field.
+            if header[0] == '*':
+                is_list.append(True)
+                headers.append(header[1:])
+            else:
+                is_list.append(False)
+                headers.append(header)
+
+        all_dicts = []
+        for data in data_rows:
+            data_dict = {}
+
+            # Loop along the row and parse the cell values.
+            for i, cell in enumerate(data):
+                value = cell.value
+
+                if value is not None:
+                    # Convert to string to ensure zeros are displayed correctly
+                    # and that calling split() doesn't explode.
+                    value = str(value)
+                    # Parse the value as a list if the column was marked as a list type.
+                    if is_list[i] and value:
+                        value = value.split('\n')
+
+                # Store the value as None if it was None to begin with, to ensure we get
+                # proper empty entries as opposed to a lot of data fields full of the
+                # word "None".
+                data_dict[headers[i]] = value
+
+            # Save the newly parsed values as an entry in the list of dictionaries.
+            all_dicts.append(data_dict)
+
+        return all_dicts
+
 
     def handle(self, *args, **options):
-        # If no filenames are supplied, use the stored ones
-        # (then delete them anyway so they get regenerated).
-        filenames = options['filenames']
-        if not filenames:
-            filenames = [cf.name for cf in CsvFile.objects.all()]
+        """DO ALL THE THINGS"""
+        verbosity = options['verbosity']
 
-        # Clear all existing data.
-        CsvFile.objects.all().delete()
+        # Get the right filenames and ensure they're in sync with the stored DataFiles
+        # (one way or another).
+        filenames = self.get_and_store_filenames(**options)
+        if not filenames:
+            return
+
+        # Clear all card data before we go any further.
         Card.objects.all().delete()
 
         # Import!
-        for filename in filenames:
-            filename = self.ensure_extension(filename, 'csv')
-            if options['verbosity']:  # pragma: nocover - this is here to make tests quiet
-                print("Loading {}".format(filename))
+        worksheets = self.load_all_worksheets(filenames, verbosity)
+        python_data = []
+        for sheet in worksheets:
+            python_data += self.convert_to_python(sheet)
 
-            CsvFile.objects.create(name=filename)
-            file_contents = self.open_csv_file(filename)
-
-            # Load the CSV data and ensure it's safe for Python and template use.
-            dataset = tablib.Dataset()
-            dataset.csv = file_contents
-            dataset.headers = self.safe_headers(dataset.headers)
-            python_data = dataset.dict
-
-            # Go no further if we don't have any data.
-            if not python_data:  # pragma: nocover
+        # Stop right here if we don't have any data.
+        if not python_data:
+            if verbosity:
                 print('No cards were created.')
-                return
+            return
 
-            # Create the cards!
-            for entry in python_data:
-                Card.objects.create(
-                    name=entry.pop('name'),
-                    template_name=self.ensure_extension(entry.pop('template'), 'html'),
-                    # The 'name' and 'template_name' have been removed, woo!
-                    # We still need to deal with list columns though.
-                    data=self.parse_card_data(entry),
-                )
+        # Create the card objects.
+        cards = []
+        for entry in python_data:
+            cards.append(Card(
+                name=entry.pop('name'),
+                template_name=self.ensure_extension(entry.pop('template'), 'html'),
+                data=entry,
+            ))
 
-    def parse_card_data(self, card_data):
-        """
-        Parse columns in python_data that contain newlines into lists.
+        # Use bulk_create to store them for an easy performance bump.
+        Card.objects.bulk_create(cards)
 
-        CSV doesn't support lists natively, so I've added a workaround: any data field
-        in your Excel spreadsheet or CSV file can be turned into a list by preceding
-        the name of the column with an asterisk. "*Rules Text", for instance.  This will
-        affect every cell of the column regardless of its contents.
-        """
-        for key, value in card_data.items():
-            if key.startswith('*'):
-                # Add an empty list if the value is empty, just for consistency.
-                if not value:
-                    list_value = []
-                else:
-                    list_value = value.split('\n')
-
-                # Remove the original key from the card_data dictionary and replace it
-                # with a de-asterisk'd, listified version. Swish.
-                card_data.pop(key)
-                key_without_asterisk = key[1:]
-                card_data[key_without_asterisk] = list_value
-
-        return card_data
+        # Chirp triumphantly to stdout.
+        if verbosity:
+            print('{} cards created!'.format(len(cards)))
+            print(', '.join([c.name for c in cards]))

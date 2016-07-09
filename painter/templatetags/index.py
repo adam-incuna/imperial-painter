@@ -10,3 +10,5 @@ def index(List, i):
         return List[int(i)]
     except IndexError:
         return ''
+    except TypeError:
+        return ''

@@ -18,8 +18,11 @@ class Card(models.Model):
             return self.template_name
         return 'custom/' + self.template_name
 
+    class Meta:
+        ordering = ['pk']
 
-class CsvFile(models.Model):
+
+class DataFile(models.Model):
     """Stores the name of a CSV file that data was loaded from."""
     name = models.CharField(max_length=255)
     date_loaded = models.DateField(default=datetime.datetime.now)

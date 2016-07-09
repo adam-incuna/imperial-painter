@@ -2,6 +2,7 @@ from django.core.management import call_command
 from django.views.generic import ListView
 
 from . import models
+from .management.commands import import_cards
 
 
 class CardDisplay(ListView):
@@ -11,5 +12,6 @@ class CardDisplay(ListView):
 
 class CardDisplayReload(CardDisplay):
     def get(self, request, *args, **kwargs):
-        call_command('import_cards', filenames=[])
+        importer = import_cards.Command()
+        importer.handle(filenames=[], verbosity=1)
         return super().get(request, *args, **kwargs)

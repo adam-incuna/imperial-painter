@@ -7,18 +7,6 @@ from .. import models
 class TestCard(TestCase):
     model = models.Card
 
-    def test_fields(self):
-        """Boring model test."""
-        expected_fields = {
-            'id',
-            'name',
-            'template_name',
-            'data',
-        }
-
-        fields = self.model._meta.get_all_field_names()
-        self.assertCountEqual(fields, expected_fields)
-
     def test_str(self):
         """A card's str representation is its name."""
         name = 'Leeroy Jenkins'
@@ -36,18 +24,3 @@ class TestCard(TestCase):
         template_name = 'leeroy.html'
         card = factories.CardFactory.create(template_name=template_name)
         self.assertEqual(card.get_template(), 'custom/' + template_name)
-
-
-class TestCsvFile(TestCase):
-    model = models.CsvFile
-
-    def test_fields(self):
-        """Boring model test."""
-        expected_fields = {
-            'id',
-            'name',
-            'date_loaded',
-        }
-
-        fields = self.model._meta.get_all_field_names()
-        self.assertCountEqual(fields, expected_fields)
