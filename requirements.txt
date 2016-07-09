@@ -2,8 +2,9 @@
 django==1.8.3
 django-jsonfield==0.9.13
 dj_database_url==0.3.0
+lxml==3.6.0
+openpyxl==2.3.5
 psycopg2==2.6.1
-tablib==0.10.0
 
 # Development help
 colour-runner==0.0.4
