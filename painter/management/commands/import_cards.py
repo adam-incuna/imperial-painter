@@ -117,7 +117,6 @@ class Command(BaseCommand):
 
         return all_dicts
 
-
     def handle(self, *args, **options):
         """DO ALL THE THINGS"""
         verbosity = options['verbosity']

@@ -1,4 +1,3 @@
-from django.core.management import call_command
 from django.views.generic import ListView
 
 from . import models
