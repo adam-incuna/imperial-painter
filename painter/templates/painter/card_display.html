@@ -17,14 +17,12 @@
             {% for object in object_list %}
                 {% cycle linebreak %}
 
-                {% with object.data.quantity|default:1 as quantity %}
-                    {% with '1'|rjust:quantity as num_copies %}
-                        {% for i in num_copies %}
-                            <td class="card-cell">
-                                {% include 'painter/card_wrapper.html' %}
-                            </td>
-                        {% endfor %}
-                    {% endwith %}
+                {% with '1'|rjust:object.quantity as num_copies %}
+                    {% for i in num_copies %}
+                        <td class="card-cell">
+                            {% include 'painter/card_wrapper.html' %}
+                        </td>
+                    {% endfor %}
                 {% endwith %}
 
                 {% if linebreak %}
