@@ -11,19 +11,30 @@
 <body>
     <table class="spoiler">
         <tr>
-            {% for object in object_list %}
-                <td id="card-{{ forloop.counter }}" class="card-cell">
-                    {% include 'painter/card_wrapper.html' %}
-                </td>
+            {% cycle False False True as linebreak silent %}
+            {% cycle False False True as pagebreak silent %}
 
-                {% if forloop.counter|divisibleby:3 %}
+            {% for object in object_list %}
+                {% cycle linebreak %}
+
+                {% with '1'|rjust:object.quantity as num_copies %}
+                    {% for i in num_copies %}
+                        <td class="card-cell">
+                            {% include 'painter/card_wrapper.html' %}
+                        </td>
+                    {% endfor %}
+                {% endwith %}
+
+                {% if linebreak %}
                     </tr>
-                    {% if forloop.counter|divisibleby:9 %}
+                    {% if pagebreak %}
                         </table>
                         <div class="page-break"></div>
                         <table class="spoiler">
                     {% endif %}
                     <tr>
+
+                    {% cycle pagebreak %}
                 {% endif %}
             {% endfor %}
         </tr>

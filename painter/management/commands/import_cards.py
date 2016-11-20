@@ -148,6 +148,7 @@ class Command(BaseCommand):
             cards.append(Card(
                 name=entry.pop('name'),
                 template_name=self.ensure_extension(entry.pop('template'), 'html'),
+                quantity=entry.pop('quantity', 1) or 1,
                 data=entry,
             ))
 
