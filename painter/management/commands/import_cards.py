@@ -6,7 +6,7 @@ from painter.models import Card, DataFile
 
 class Command(BaseCommand):
     help = ('Clears the database of cards, then fills it with the contents of one or' +
-            ' more specified CSV files.')
+            ' more specified XLSX files.')
 
     def add_arguments(self, parser):
         parser.add_argument(
