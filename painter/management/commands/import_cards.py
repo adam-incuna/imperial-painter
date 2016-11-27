@@ -81,15 +81,19 @@ class Command(BaseCommand):
             # Make it look like a variable name by forcing lowercase and replacing spaces
             # with underscores.
             header = header_cell.value
-            header = header.lower().replace(' ', '_')
+            if header:
+                header = header.lower().replace(' ', '_')
 
-            # Any header preceded by an asterisk denotes a list field.
-            if header[0] == '*':
-                is_list.append(True)
-                headers.append(header[1:])
+                # Any header preceded by an asterisk denotes a list field.
+                if header[0] == '*':
+                    is_list.append(True)
+                    headers.append(header[1:])
+                else:
+                    is_list.append(False)
+                    headers.append(header)
             else:
-                is_list.append(False)
-                headers.append(header)
+                # If we find a column with a blank header, stop processing new headers.
+                break
 
         all_dicts = []
         for data in data_rows:
@@ -145,9 +149,16 @@ class Command(BaseCommand):
         # Create the card objects.
         cards = []
         for entry in python_data:
+            # If it has both a name and a template, add it. Otherwise, leave it out.
+            # This allows for blank/incomplete/ignored rows to exist in the Excel file.
+            name = entry.pop('name', None)
+            template = entry.pop('template', None)
+            if not name or not template:
+                continue
+
             cards.append(Card(
-                name=entry.pop('name'),
-                template_name=self.ensure_extension(entry.pop('template'), 'html'),
+                name=name,
+                template_name=self.ensure_extension(template, 'html'),
                 quantity=entry.pop('quantity', 1) or 1,
                 data=entry,
             ))
