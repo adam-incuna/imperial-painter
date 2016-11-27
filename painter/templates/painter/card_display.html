@@ -11,31 +11,35 @@
 <body>
     <table class="spoiler">
         <tr>
-            {% cycle False False True as linebreak silent %}
-            {% cycle False False True as pagebreak silent %}
-
             {% for object in object_list %}
-                {% cycle linebreak %}
-
                 {% with '1'|rjust:object.quantity as num_copies %}
                     {% for i in num_copies %}
+
+                        {# Include the card itself. #}
                         <td class="card-cell">
-                            {% include 'painter/card_wrapper.html' %}
+                            <div class="card-wrapper">
+                                {% include object.get_template with c=object.data name=object.name %}
+                            </div>
                         </td>
+
+                        {# Create a new row every three cards. #}
+                        {% cycle 0 0 1 as linebreak silent %}
+                        {% if linebreak %}
+                            </tr>
+
+                            {# Break onto a new printed page every three rows. #}
+                            {% cycle 0 0 1 as pagebreak silent %}
+                            {% if pagebreak %}
+                                </table>
+                                <div class="page-break"></div>
+                                <table class="spoiler">
+                            {% endif %}
+
+                            <tr>
+                        {% endif %}
+
                     {% endfor %}
                 {% endwith %}
-
-                {% if linebreak %}
-                    </tr>
-                    {% if pagebreak %}
-                        </table>
-                        <div class="page-break"></div>
-                        <table class="spoiler">
-                    {% endif %}
-                    <tr>
-
-                    {% cycle pagebreak %}
-                {% endif %}
             {% endfor %}
         </tr>
     </table>
