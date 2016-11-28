@@ -103,6 +103,13 @@ class Command(BaseCommand):
             for i, cell in enumerate(data):
                 value = cell.value
 
+                # Blank columns can confuse the system (thanks, LibreOffice).
+                # We've already stopped taking that data on board thanks to the header
+                # code, so just quietly throw out anything that's bigger than our list
+                # of headers.
+                if i >= len(headers):
+                    continue
+
                 if value is not None:
                     # Convert to string to ensure zeros are displayed correctly
                     # and that calling split() doesn't explode.
@@ -169,4 +176,5 @@ class Command(BaseCommand):
         # Chirp triumphantly to stdout.
         if verbosity:
             print('{} cards created!'.format(len(cards)))
+            print('Data columns: ' + ', '.join(python_data[0].keys()))
             print(', '.join([c.name for c in cards]))
