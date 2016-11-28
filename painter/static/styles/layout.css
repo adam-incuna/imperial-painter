@@ -69,3 +69,11 @@ body {
     /* Non-explicit margins are going to get in the way and mess with formatting. */
     margin: 0px;
 }
+
+.full-card {
+    /* Include borders in the card's with, allowing you to apply borders to the card
+       with a simple `border` style and not mess around with width/position. */
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+}
