@@ -7,6 +7,7 @@ __pycache__/
 
 painter/templates/custom/*.html
 painter/static/styles/custom.css
+painter/static/images/*
 *custom.css*
 
 *.xls*
