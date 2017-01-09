@@ -8,7 +8,7 @@ body {
     /* Let's use a generic, concise, easily-readable font. */
     font-family: "Arial";
     /* Scale down by 70%, since everything else is sized using ems. */
-    font-size: 70%;
+    font-size: 73%;
 }
 
 @media all {
