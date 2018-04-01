@@ -9,6 +9,7 @@ painter/templates/custom/*.html
 painter/static/styles/custom.css
 painter/static/images/*
 *custom.css*
+*.less*
 
 *.xls*
 *.csv*
