@@ -1,3 +1,5 @@
+import re
+
 from django.core.management.base import BaseCommand
 from openpyxl import load_workbook
 
@@ -71,7 +73,21 @@ class Command(BaseCommand):
 
         return all_sheets
 
-    def parse_header_row(self, worksheet_row, start_column=0, end_column=-1):
+    def make_safe_name(self, value):
+        """
+        Return a form of `value` that's usable as a variable name in a Django template.
+        """
+        # Replace all spaces with underscores.
+        value = value.lower().replace(' ', '_')
+
+        # Remove any non-alphanumeric characters from the name.
+        # https://stackoverflow.com/a/2779487
+        # https://docs.python.org/3/howto/regex.html#matching-characters
+        value = re.sub(r'\W+', '', value)
+
+        return value
+
+    def parse_header_row(self, worksheet_row, start_column=0, width=-1):
         """
         Return a list of parsed header fields.
 
@@ -81,12 +97,11 @@ class Command(BaseCommand):
         a list field.
 
         The parser will travel along the row from start_column until it reaches either
-        end_column or a blank cell, whichever comes first.
+        start_column + width or a blank cell, whichever comes first.
         """
         header_row = worksheet_row[start_column:]
-
-        if (end_column > -1):
-            header_row = worksheet_row[start_column:end_column]
+        if (width > -1):
+            header_row = header_row[:width]
 
         result = []
 
@@ -95,7 +110,7 @@ class Command(BaseCommand):
             # with underscores.
             header = header_cell.value
             if header:
-                header = header.lower().replace(' ', '_')
+                header = self.make_safe_name(header)
 
                 # Any header preceded by an asterisk denotes a list field.
                 if header[0] == '*':
@@ -118,8 +133,11 @@ class Command(BaseCommand):
 
         For headers that represent list fields, parse the cell value into a list
         (separated by newlines).
+
+        Return None if the row is completely blank (every cell is empty/None).
         """
         result = {}
+        is_empty = True
 
         for i, header_data in enumerate(headers):
             key = header_data[0]
@@ -132,6 +150,7 @@ class Command(BaseCommand):
             # the value shows up correctly as empty, instead of the string "None".
             if value is not None:
                 value = str(value)
+                is_empty = False
 
             # Parse the value as a list if the column was marked as a list type.
             if is_list and value:
@@ -139,35 +158,45 @@ class Command(BaseCommand):
 
             result[key] = value
 
+        if is_empty:
+            return None
+
         return result
 
     def parse_table(
         self, worksheet_rows,
-        start_row=0, start_column=0, end_row=-1, end_column=-1
+        start_row=0, start_column=0, height=-1, width=-1
     ):
         """
         Parse an entire table.
 
         - The first row (start_row) is taken to be the header row;
           the rest are data rows.
-        - First, generate the header row, from start_column to end_column (or the
-          end of the sheet if end_column=-1).
-        - Then, generate data rows. Iterate from start_row + 1 until end_row
-          (if specified) or the end of the sheet.
+        - First, generate the header row, from start_column to start_column + width
+          (or the end of the sheet if width=-1).
+        - Then, generate data rows. Iterate from start_row + 1 until start_row +
+          height (if specified) or the end of the sheet.
 
         parse_data_row is called on each data row, and the results are accumulated
         into a list.
+
+        Note that height includes the header row.
         """
         table_rows = worksheet_rows[start_row:]
-
-        if end_row > -1:
-            table_rows = worksheet_rows[start_row:end_row]
+        if height > -1:
+            table_rows = table_rows[:height]
 
         header_row = table_rows[0]
-        headers = self.parse_header_row(header_row, start_column, end_column)
+        headers = self.parse_header_row(header_row, start_column, width)
 
         data_rows = table_rows[1:]
-        return [self.parse_data_row(data, headers) for data in data_rows]
+        parsed_rows = [
+            self.parse_data_row(data, headers, start_column)
+            for data in data_rows
+        ]
+        nonempty_rows = [r for r in parsed_rows if r is not None]
+
+        return nonempty_rows
 
     def convert_to_python(self, worksheet):
         """
