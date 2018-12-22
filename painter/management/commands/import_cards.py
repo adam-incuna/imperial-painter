@@ -71,7 +71,7 @@ class Command(BaseCommand):
 
         return all_sheets
 
-    def parse_header_row(self, worksheet_row, start_index=0, end_index=-1):
+    def parse_header_row(self, worksheet_row, start_column=0, end_column=-1):
         """
         Return a list of parsed header fields.
 
@@ -80,13 +80,13 @@ class Command(BaseCommand):
         list of data, and False otherwise. Any header preceded by an asterisk denotes
         a list field.
 
-        The parser will travel along the row from start_index until it reaches either
-        end_index or a blank cell, whichever comes first.
+        The parser will travel along the row from start_column until it reaches either
+        end_column or a blank cell, whichever comes first.
         """
-        header_row = worksheet_row[start_index:]
+        header_row = worksheet_row[start_column:]
 
-        if (end_index > -1):
-            header_row = worksheet_row[start_index:end_index]
+        if (end_column > -1):
+            header_row = worksheet_row[start_column:end_column]
 
         result = []
 
@@ -108,12 +108,12 @@ class Command(BaseCommand):
 
         return result
 
-    def parse_data_row(self, worksheet_row, headers, start_index=0):
+    def parse_data_row(self, worksheet_row, headers, start_column=0):
         """
         Turn a row of data from the sheet into a dictionary.
 
         The keys of the dictionary are given by the corresponding headers.
-        Starting at start_index in the worksheet_row, loop until we run out of headers,
+        Starting at start_column in the worksheet_row, loop until we run out of headers,
         and create a dictionary entry for each cell.
 
         For headers that represent list fields, parse the cell value into a list
@@ -124,7 +124,7 @@ class Command(BaseCommand):
         for i, header_data in enumerate(headers):
             key = header_data[0]
             is_list = header_data[1]
-            value = worksheet_row[start_index + i].value
+            value = worksheet_row[start_column + i].value
 
             # Convert to string to ensure zeros are displayed correctly,
             # and that calling split() doesn't explode.
@@ -141,6 +141,34 @@ class Command(BaseCommand):
 
         return result
 
+    def parse_table(
+        self, worksheet_rows,
+        start_row=0, start_column=0, end_row=-1, end_column=-1
+    ):
+        """
+        Parse an entire table.
+
+        - The first row (start_row) is taken to be the header row;
+          the rest are data rows.
+        - First, generate the header row, from start_column to end_column (or the
+          end of the sheet if end_column=-1).
+        - Then, generate data rows. Iterate from start_row + 1 until end_row
+          (if specified) or the end of the sheet.
+
+        parse_data_row is called on each data row, and the results are accumulated
+        into a list.
+        """
+        table_rows = worksheet_rows[start_row:]
+
+        if end_row > -1:
+            table_rows = worksheet_rows[start_row:end_row]
+
+        header_row = table_rows[0]
+        headers = self.parse_header_row(header_row, start_column, end_column)
+
+        data_rows = table_rows[1:]
+        return [self.parse_data_row(data, headers) for data in data_rows]
+
     def convert_to_python(self, worksheet):
         """
         Turn an openpyxl worksheet into a list of dictionaries.
@@ -153,14 +181,7 @@ class Command(BaseCommand):
         and all the other rows as entries.
         """
         all_rows = list(worksheet.rows)
-
-        header_row = all_rows[0]
-        headers = self.parse_header_row(header_row)
-
-        data_rows = all_rows[1:]
-        all_dicts = [self.parse_data_row(data, headers) for data in data_rows]
-
-        return all_dicts
+        return self.parse_table(all_rows)
 
     def convert_to_cards(self, card_data):
         """
