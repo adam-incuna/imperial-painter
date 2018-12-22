@@ -40,7 +40,12 @@ class Command(BaseCommand):
         return filenames
 
     def load_all_worksheets(self, filenames, verbosity=0):
-        """Open a given series of Excel files and return all their worksheets."""
+        """
+        Open a given series of Excel files and return all their worksheets.
+
+        Ignore worksheets whose names start with an @ symbol - these are
+        used as metadata.
+        """
         all_sheets = []
 
         for filename in filenames:
@@ -54,7 +59,15 @@ class Command(BaseCommand):
                 data_only=True,  # Load the values computed by formulae, not the formulae
                 keep_vba=False,  # Throw away any VBA scripting
             )
-            all_sheets += workbook.worksheets
+
+            valid_sheets = [w for w in workbook.worksheets if w.title[0] != '@']
+
+            all_sheets += valid_sheets
+
+        if verbosity:
+            titles = [w.title for w in all_sheets]
+            titles = ', '.join(titles)
+            print('Loading worksheets: {}'.format(titles))
 
         return all_sheets
 
@@ -136,7 +149,8 @@ class Command(BaseCommand):
         form a single game 'entity'. This could be one spell, one attack, a series
         of stat cards for a single unit, and so on.
 
-        The default implementation treats the first
+        The base implementation treats the first row as the headers of a table,
+        and all the other rows as entries.
         """
         all_rows = list(worksheet.rows)
 
