@@ -58,25 +58,25 @@ class Command(BaseCommand):
 
         return all_sheets
 
-    def convert_to_python(self, worksheet):
+    def parse_header_row(self, worksheet_row, start_index=0, end_index=-1):
         """
-        Turn an openpyxl worksheet into a list of dictionaries.
+        Return a list of parsed header fields.
 
-        Each dictionary represents one card.
+        Each "field" is a pair of (field_name, is_list). The field_name is suitable for
+        use as a variable name; is_list is True if the field is expected to contain a
+        list of data, and False otherwise. Any header preceded by an asterisk denotes
+        a list field.
 
-        We need to do the following:
-        - Parse the headers into dict keys we can use safely in a Django template.
-        - Figure out which ones are supposed to be lists; any header preceded by an
-          asterisk denotes a list field.
-        - Convert each row into a dictionary, parsing any list field values
-          into lists along the way using `split(\n)`.
+        The parser will travel along the row from start_index until it reaches either
+        end_index or a blank cell, whichever comes first.
         """
-        all_rows = list(worksheet.rows)
-        header_row = all_rows[0]
-        data_rows = all_rows[1:]
+        header_row = worksheet_row[start_index:]
 
-        headers = []
-        is_list = []
+        if (end_index > -1):
+            header_row = worksheet_row[start_index:end_index]
+
+        result = []
+
         for header_cell in header_row:
             # Make it look like a variable name by forcing lowercase and replacing spaces
             # with underscores.
@@ -86,47 +86,98 @@ class Command(BaseCommand):
 
                 # Any header preceded by an asterisk denotes a list field.
                 if header[0] == '*':
-                    is_list.append(True)
-                    headers.append(header[1:])
+                    result.append((header[1:], True))
                 else:
-                    is_list.append(False)
-                    headers.append(header)
+                    result.append((header, False))
             else:
                 # If we find a column with a blank header, stop processing new headers.
                 break
 
-        all_dicts = []
-        for data in data_rows:
-            data_dict = {}
+        return result
 
-            # Loop along the row and parse the cell values.
-            for i, cell in enumerate(data):
-                value = cell.value
+    def parse_data_row(self, worksheet_row, headers, start_index=0):
+        """
+        Turn a row of data from the sheet into a dictionary.
 
-                # Blank columns can confuse the system (thanks, LibreOffice).
-                # We've already stopped taking that data on board thanks to the header
-                # code, so just quietly throw out anything that's bigger than our list
-                # of headers.
-                if i >= len(headers):
-                    continue
+        The keys of the dictionary are given by the corresponding headers.
+        Starting at start_index in the worksheet_row, loop until we run out of headers,
+        and create a dictionary entry for each cell.
 
-                if value is not None:
-                    # Convert to string to ensure zeros are displayed correctly
-                    # and that calling split() doesn't explode.
-                    value = str(value)
-                    # Parse the value as a list if the column was marked as a list type.
-                    if is_list[i] and value:
-                        value = value.split('\n')
+        For headers that represent list fields, parse the cell value into a list
+        (separated by newlines).
+        """
+        result = {}
 
-                # Store the value as None if it was None to begin with, to ensure we get
-                # proper empty entries as opposed to a lot of data fields full of the
-                # word "None".
-                data_dict[headers[i]] = value
+        for i, header_data in enumerate(headers):
+            key = header_data[0]
+            is_list = header_data[1]
+            value = worksheet_row[start_index + i].value
 
-            # Save the newly parsed values as an entry in the list of dictionaries.
-            all_dicts.append(data_dict)
+            # Convert to string to ensure zeros are displayed correctly,
+            # and that calling split() doesn't explode.
+            # However, if the value is None, skip the string conversion. This means
+            # the value shows up correctly as empty, instead of the string "None".
+            if value is not None:
+                value = str(value)
+
+            # Parse the value as a list if the column was marked as a list type.
+            if is_list and value:
+                value = value.split('\n')
+
+            result[key] = value
+
+        return result
+
+    def convert_to_python(self, worksheet):
+        """
+        Turn an openpyxl worksheet into a list of dictionaries.
+
+        Each dictionary represents one card or group of cards that collectively
+        form a single game 'entity'. This could be one spell, one attack, a series
+        of stat cards for a single unit, and so on.
+
+        The default implementation treats the first
+        """
+        all_rows = list(worksheet.rows)
+
+        header_row = all_rows[0]
+        headers = self.parse_header_row(header_row)
+
+        data_rows = all_rows[1:]
+        all_dicts = [self.parse_data_row(data, headers) for data in data_rows]
 
         return all_dicts
+
+    def convert_to_cards(self, card_data):
+        """
+        Convert a dictionary into one or more Card objects, returned in a list.
+
+        The dictionary is intended to represent a single entry - convert_to_python
+        returns a list of such 'entries'. Often, this will be a single card.
+
+        The basic implementation pops 'name', 'template' and 'quantity' out of
+        card_data, then creates one Card with the rest of card_data saved in its
+        data field.
+
+        This function is allowed to modify card_data, to avoid copying it.
+        """
+        # Remove the name, template, and quantity fields from the rest of the data,
+        # since they go directly on the Card instance.
+        name = card_data.pop('name', None)
+        template = card_data.pop('template', None)
+        quantity = card_data.pop('quantity', 1)
+
+        # If it has both a name and a template, add it. Otherwise, leave it out.
+        # This allows for blank/incomplete/ignored rows to exist in the Excel file.
+        if not name or not template:
+            return []
+
+        return [Card(
+            name=name,
+            template_name=self.ensure_extension(template, 'html'),
+            quantity=quantity,
+            data=card_data,
+        )]
 
     def handle(self, *args, **options):
         """DO ALL THE THINGS"""
@@ -155,20 +206,8 @@ class Command(BaseCommand):
 
         # Create the card objects.
         cards = []
-        for entry in python_data:
-            # If it has both a name and a template, add it. Otherwise, leave it out.
-            # This allows for blank/incomplete/ignored rows to exist in the Excel file.
-            name = entry.pop('name', None)
-            template = entry.pop('template', None)
-            if not name or not template:
-                continue
-
-            cards.append(Card(
-                name=name,
-                template_name=self.ensure_extension(template, 'html'),
-                quantity=entry.pop('quantity', 1) or 1,
-                data=entry,
-            ))
+        for card_data in python_data:
+            cards += self.convert_to_cards(card_data)
 
         # Use bulk_create to store them for an easy performance bump.
         Card.objects.bulk_create(cards)
@@ -176,5 +215,4 @@ class Command(BaseCommand):
         # Chirp triumphantly to stdout.
         if verbosity:
             print('{} cards created!'.format(len(cards)))
-            print('Data columns: ' + ', '.join(python_data[0].keys()))
             print(', '.join([c.name for c in cards]))
