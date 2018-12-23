@@ -24,7 +24,7 @@ class Command(BaseImportCommand):
         stat_table = self.parse_table(
             all_rows, start_row=3, height=9, width=3)
         derived_stat_table = self.parse_table(
-            all_rows, start_row=3, start_column=4, height=10, width=2)
+            all_rows, start_row=3, start_column=4, height=8, width=2)
         skill_table = self.parse_table(
             all_rows, start_row=15, width=7)
 
@@ -32,36 +32,28 @@ class Command(BaseImportCommand):
         identity = identity_table[0]
         traits = traits_table[0]
 
-        # 'Invert' the stats and derived_stats table into single dictionaries.
-        # They'll be lists of the form [{name: Strength, value: 1} etc,
-        # whereas we want {strength: 1, constitution: 1, ...}
-        stats = {
-            self.make_safe_name(row['stat']): row['value']
-            for row in stat_table
-        }
-        derived_stats = {
-            self.make_safe_name(row['derived_stat']): row['value']
-            for row in derived_stat_table
-        }
-
         # Damage bonuses are converted to dice, using a table.
         # Automate that here and add it to derived_stats.
-        bonus = int(derived_stats['damage_bonus'])
-        bonus_die = 'None'
-        if bonus <= 12:
-            bonus_die = '-1d6'
-        elif bonus <= 16:
-            bonus_die = '-1d4'
-        elif bonus <= 24:
-            bonus_die = 'None'
-        elif bonus <= 32:
-            bonus_die = '+1d4'
-        elif bonus <= 40:
-            bonus_die = '+1d6'
-        else:
-            bonus_die = '+2d6'
+        bonus = 20  # A neutral amount that causes no damage bonus/penalty
+        for stat_row in derived_stat_table:
+            if (stat_row['derived_stat'] == 'damage_bonus'):
+                bonus = int(stat_row['value'])
 
-        derived_stats['damage_bonus_die'] = bonus_die
+                if bonus <= 12:
+                    bonus_die = '-1d6'
+                elif bonus <= 16:
+                    bonus_die = '-1d4'
+                elif bonus <= 24:
+                    bonus_die = 'None'
+                elif bonus <= 32:
+                    bonus_die = '+1d4'
+                elif bonus <= 40:
+                    bonus_die = '+1d6'
+                else:
+                    bonus_die = '+2d6'
+
+                stat_row['value'] = bonus_die
+                break
 
         # For the skills, we also want to invert the table, but we also need
         # to collapse specialisations into bracketed names. For instance,
@@ -118,8 +110,8 @@ class Command(BaseImportCommand):
         character = {
             **identity,
             **traits,
-            'stats': stats,
-            'derived_stats': derived_stats,
+            'stats': stat_table,
+            'derived_stats': derived_stat_table,
             'skills': skills,
             'spells': spell_table,
         }
@@ -133,11 +125,7 @@ class Command(BaseImportCommand):
         - Skills
         - Spells and weapons
         """
-        # Pull the skills and spells out of card_data, along with the name.
         name = card_data.pop('name')
-        skills = card_data.pop('skills', {})
-        spells = card_data.pop('spells', {})
-
         if not name:
             return []
 
@@ -152,16 +140,16 @@ class Command(BaseImportCommand):
                 name=name,
                 template_name='skills.html',
                 quantity=1,
-                data=skills,
+                data=card_data,
             ),
         ]
 
-        if spells:
+        if card_data['spells']:
             cards.append(Card(
                 name=name,
                 template_name='spells.html',
                 quantity=1,
-                data=spells,
+                data=card_data,
             ))
 
         return cards
