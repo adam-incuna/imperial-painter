@@ -12,3 +12,8 @@ def index(List, i):
         return ''
     except TypeError:
         return ''
+
+
+@register.filter
+def lookup(dictionary, key):
+    return dictionary.get(key)

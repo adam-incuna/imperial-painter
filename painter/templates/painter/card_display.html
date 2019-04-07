@@ -32,8 +32,8 @@
                             </tr>
 
                             {# Break onto a new printed page every three rows. #}
-                            {% cycle 0 0 1 as pagebreak silent %}
-                            {% if pagebreak %}
+                            {% cycle 0 1 as pagebreak silent %}
+                            {% if pagebreak and not forloop.parentloop.last  %}
                                 </table>
                                 <div class="page-break"></div>
                                 <table class="spoiler">
