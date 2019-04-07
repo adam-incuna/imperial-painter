@@ -12,5 +12,9 @@ lib64
 share
 pyvenv.cfg
 
+# Build output
+dist/
+*.egg-info
+
 # Excel lockfiles
 ~$*.xls*
