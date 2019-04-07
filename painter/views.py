@@ -1,7 +1,7 @@
 from django.views.generic import ListView
 
 from . import models
-from .management.commands import import_cards, import_laundry
+from .management.commands import import_cards
 
 
 class CardDisplay(ListView):
@@ -12,12 +12,5 @@ class CardDisplay(ListView):
 class CardDisplayReload(CardDisplay):
     def get(self, request, *args, **kwargs):
         importer = import_cards.Command()
-        importer.handle(filenames=[], verbosity=1)
-        return super().get(request, *args, **kwargs)
-
-
-class LaundryDisplayReload(CardDisplay):
-    def get(self, request, *args, **kwargs):
-        importer = import_laundry.Command()
         importer.handle(filenames=[], verbosity=1)
         return super().get(request, *args, **kwargs)

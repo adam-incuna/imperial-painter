@@ -1,0 +1,110 @@
+/* ----------------------------------------------------------------------- */
+/* Structure */
+/* ----------------------------------------------------------------------- */
+
+.full-card {
+    // Set the font here for scaling purposes.
+    font-family: "Trebuchet MS";
+    font-size: 1em;
+
+    &, * {
+        box-sizing: border-box;
+    }
+
+    // Remove borders and margins from all divs (by default).
+    div {
+        border: 0;
+        margin: 0;
+        padding: 0;
+    }
+
+    // The full card contains two divs layered on top of each other - one for the background
+    // and one for the card's contents.
+    // Use position: absolute so they don't get in each other's way.
+    .card-background {
+        z-index: 1;
+        width: 100%;
+        height: 100%;
+        
+        position: absolute;
+        top: 0em;
+        left: 0em;
+    }
+
+    .card-contents {
+        z-index: 100;
+        width: 100%;
+        height: 100%;
+        
+        position: absolute;
+        top: 0em;
+        left: 0em;
+
+        display: flex;
+        flex-flow: column;
+
+        // The card name, left stat column and all the rules text.
+        .card-contents-upper {
+            width: 100%;
+            height: 100%;
+            flex: 0 1 auto;
+
+            display: flex;
+            flex-flow: row;
+
+            .stats-left {
+                height: 100%;
+                width: 3.3em;
+                flex: 0 0 auto;
+            }
+
+            .card-text {
+                height: 100%;
+                width: 100%;
+                flex: 0 1 auto;
+
+                display: flex;
+                flex-flow: column;
+
+                .card-name {
+                    // No left/right padding on this one; allow it to extend into the 
+                    width: 100%;
+                    min-height: 2em;
+                    flex: 0 0 auto;
+                }
+
+                .card-body {
+                    // Separate the text from the stat column and right-hand border.
+                    padding: 0.7em 1.7em 1.5em 0.9em;
+                    width: 100%;
+                    height: 100%;
+                    flex: 0 1 auto;
+
+                    display: flex;
+                    flex-flow: column;
+
+                    .rules {
+                        width: 100%;
+                        flex: 0 0 auto;
+                    }
+
+                    .flavour {
+                        width: 100%;
+                        height: 100%;
+                        flex: 0 1 auto;
+                    }
+                }
+            }
+        }
+
+        // The type line and wisdom cost listed along the bottom.
+        .card-contents-lower {
+            width: 100%;
+            height: 3.5em;
+            flex: 0 0 auto;
+
+            display: flex;
+            flex-flow: row;
+        }
+    }
+}

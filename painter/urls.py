@@ -6,7 +6,6 @@ from . import views
 
 urlpatterns = [
     url(r'^noreload$', views.CardDisplay.as_view(), name='card_display_noreload'),
-    url(r'^laundry$', views.LaundryDisplayReload.as_view(), name='laundry_display'),
     url(r'^$', views.CardDisplayReload.as_view(), name='card_display'),
 ]
 

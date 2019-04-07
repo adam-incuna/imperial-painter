@@ -1,0 +1,61 @@
+
+.card-contents-lower {
+    .learning-cost {
+        min-width: 3.7em;
+        height: 100%;
+        flex: 0 0 auto;
+
+        display: flex;
+        flex-flow: row;
+        
+        .cost-value, .cost-label-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .cost-value {
+            font-size: 2.8em;
+            font-weight: bold;
+            min-width: 1em;
+            height: 100%;
+            letter-spacing: -0.1em;
+            flex: 0 0 auto;
+        }
+
+        .cost-label-wrapper {
+            width: 1.2em;
+            height: 100%;
+            flex: 0 0 auto;
+
+            .cost-label {
+                margin-left: -0.3em;
+                font-size: 0.9em;
+                transform: rotate(-90deg);
+                letter-spacing: 0.05em;
+            }
+        }
+    }
+    
+    .style-display {
+        padding: 0em 0.2em 1.2em 1.2em;
+        width: 100%;
+        height: 100%;
+        flex: 0 1 auto;
+
+        display: flex;
+        flex-flow: column;
+        // align-items: flex-end;
+        justify-content: flex-end;
+        
+        span {
+            text-transform: uppercase;
+            font-style: italic;
+            font-size: 0.9em;
+            font-weight: bold;
+            white-space: nowrap;
+            text-align: right;
+            width: 100%;
+        }
+    }
+}
