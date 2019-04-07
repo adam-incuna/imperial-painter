@@ -7,8 +7,8 @@ from . import models
 
 # settings.IP_IMPORTER needs to point to a management command.
 # There are two default ones:
-#  * painter.management.commands.import_cards
-#  * painter.management.commands.import_laundry
+#  * painter.importers.import_cards
+#  * painter.importers.import_laundry
 ip_importer = importlib.import_module(settings.IP_IMPORTER)
 
 class CardDisplay(ListView):
