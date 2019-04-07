@@ -91,17 +91,20 @@ class Command(BaseCommand):
         result = []
 
         for header_cell in header_row:
-            # Make it look like a variable name by forcing lowercase and replacing spaces
-            # with underscores.
             header = header_cell.value
             if header:
-                header = self.make_safe_name(header)
+                is_list = False
 
                 # Any header preceded by an asterisk denotes a list field.
                 if header[0] == '*':
-                    result.append((header[1:], True))
-                else:
-                    result.append((header, False))
+                    header = header[1:]
+                    is_list = True
+
+                # Make the header name into a suitable variable name,
+                # by forcing lowercase and replacing spaces with underscores.
+                header = self.make_safe_name(header)
+
+                result.append((header, is_list))
             else:
                 # If we find a column with a blank header, stop processing new headers.
                 break
