@@ -1,14 +1,23 @@
-__pycache__/
+# Python output
+__pycache__
 *.pyc
-
 .coverage
 .coverage.*
 .cache
 
+# Python venv folders
+bin
+lib
+lib64
+share
+pyvenv.cfg
+
+# Custom HTML and styles
 painter/templates/custom/*.html
 painter/static/styles/custom.css
 painter/static/styles/custom/*
 painter/static/images/*
 
+# Input data files
 *.xls*
 *.csv*
