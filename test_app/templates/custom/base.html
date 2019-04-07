@@ -1,87 +1,18 @@
 {% load index %}
 {% load static %}
 
-<div class="full-card border-{{ c.style }} colour-{{ c.style }}">
-    <div class="card-background colour-{{ c.style }}" style="background-image: url({% static 'images/style-' %}{{ c.style }}.svg)"></div>
-    <!-- <div class="card-background colour-{{ c.style }}">
-        <use xlink:href="{% static 'images/style-' %}{{ c.style }}.svg"></use>
-    </div> -->
-    
-    <div class="card-contents">
-        <div class="card-contents-upper">
+<div class="full-card">
+    <h1>{{ name }}</h1>
 
-            <div class="stats-left text-highlight-{{ c.style }}">
-                <div class="stat-item bg-{{ c.style }}">
-                    <img class="type-icon"
-                        src="{% static 'images/' %}{{ c.type }}-{% if c.style == 'basic' or c.style == 'crane'%}dark{% else %}light{% endif %}.svg"
-                    >
-                    <p class="stat-label text-highlight-{{ c.style }}">{{ c.type }}</p>
-                </div>
-                <div class="stat-item bg-{{ c.style }}">
-                    <p class="stat-value">{{ c.cp|default:0 }}</p>
-                    <p class="stat-label">combo</p>
-                </div>
-                {% if c.type == 'normal' or c.type == 'special' %}
-                    <div class="stat-item bg-{{ c.style }}">
-                        <p class="stat-value">{{ c.damage|default:0 }}</p>
-                        <p class="stat-label">damage</p>
-                    </div>
-                {% endif %}
-                <div class="stat-item bg-cost">
-                    <p class="stat-value text-highlight-cost">{{ c.wisdom|default:0 }}</p>
-                    <p class="stat-label text-highlight-cost">wisdom</p>
-                </div>
-            </div>
-    
-            <div class="card-text">
-    
-                <div class="bg-{{ c.style }} text-highlight-{{ c.style }} card-name">{{ name }}</div>
-    
-                <div class="card-body">
-                    {% if c.rules_text %}
-                        <div class="rules">
-                            {% for rt in c.rules_text %}
-                                <p>{{ rt|safe }}</p>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
+    {% block template_name %}
+        <h3>Base Template</h3>
+    {% endblock %}
 
-                    {% if c.rules_text and c.flavour_text %}<hr class="text-separator" />{% endif %}
-        
-                    <div class="flavour">
-                        {{ c.flavour_text|default:''|safe }}
-                    </div>
-                </div>
-                
-            </div>
-        </div>
+    <p>Attribute: {{ c.attribute }}</p>
 
-        <div class="card-contents-lower">
-
-            <div class="style-display">
-                <span class="colour-{{ c.style }}">
-                    {% if c.type == 'normal' %}Normal attack
-                    {% elif c.type == 'special' %}Special attack
-                    {% else %}{{ c.type }}
-                    {% endif %}
-                </span>
-                <span class="colour-{{ c.style }}">
-                    {% if c.style == 'fist' %}Way of the Fist
-                    {% elif c.style == 'crane' %}Crane Stance
-                    {% elif c.style == 'dragon' %}Dragon Spirit
-                    {% elif c.style == 'temple' %}Temple of Stone
-                    {% else %}Basic
-                    {% endif %}
-                </span>
-            </div>
-
-            <div class="learning-cost bg-cost">
-                <div class="cost-value text-highlight-cost" {% if c.cost >= 10 %}style="min-width: 4em"{% endif %}>{{ c.cost|default:0 }}</div>
-                <div class="cost-label-wrapper">
-                    <div class="cost-label text-highlight-cost">cost</div>
-                </div>
-            </div>
-
-        </div>
-    </div>
+    <ul>
+        {% for text_item in c.long_text %}
+            <li>{{ text_item|safe }}</li>
+        {% endfor %}
+    </ul>
 </div>

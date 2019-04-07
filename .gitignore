@@ -12,13 +12,5 @@ lib64
 share
 pyvenv.cfg
 
-# Custom HTML and styles
-painter/templates/custom/*.html
-painter/static/styles/custom.css
-painter/static/styles/custom.less
-painter/static/styles/custom/*
-painter/static/images/*
-
-# Input data files
-*.xls*
-*.csv*
+# Excel lockfiles
+~$*.xls*
