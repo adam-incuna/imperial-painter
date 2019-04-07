@@ -6,6 +6,7 @@ with open("README.md", "r") as fh:
 setuptools.setup(
     name="imperial-painter",
     version="1.0.0",
+    include_package_data=True,
     packages=setuptools.find_packages(),
 
     install_requires=[

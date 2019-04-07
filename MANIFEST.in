@@ -1,0 +1,3 @@
+recursive-include painter/templates/*
+recursive-include painter/templatetags/*
+recursive-include painter/static/*
