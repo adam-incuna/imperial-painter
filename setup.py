@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-setuptools.setup(
+setup(
     name="imperial-painter",
     version="1.0.0",
     include_package_data=True,
