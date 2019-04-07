@@ -22,9 +22,3 @@ class Card(models.Model):
 
     class Meta:
         ordering = ['pk']
-
-
-class DataFile(models.Model):
-    """Stores the name of a CSV file that data was loaded from."""
-    name = models.CharField(max_length=255)
-    date_loaded = models.DateField(default=datetime.datetime.now)

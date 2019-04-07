@@ -1,7 +1,13 @@
+from django.conf import settings
 from django.views.generic import ListView
 
 from . import models
-from .management.commands import import_cards
+from .management.commands import import_cards, import_laundry
+
+importers = {
+    'import_cards': import_cards,
+    'import_laundry': import_laundry,
+}
 
 
 class CardDisplay(ListView):
@@ -11,6 +17,6 @@ class CardDisplay(ListView):
 
 class CardDisplayReload(CardDisplay):
     def get(self, request, *args, **kwargs):
-        importer = import_cards.Command()
+        importer = importers[settings.IP_IMPORTER].Command()
         importer.handle(filenames=[], verbosity=1)
         return super().get(request, *args, **kwargs)

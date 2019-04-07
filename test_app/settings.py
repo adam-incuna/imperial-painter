@@ -62,3 +62,9 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'painter/static')
 STATIC_URL = os.environ.get('STATIC_URL', '/static/')
 
 TEST_RUNNER = 'painter.tests.runner.TestRunner'
+
+# Imperial Painter settings
+IP_DATA_FILES = [
+    os.path.join(BASE_DIR, 'Cards.xlsx'),
+]
+IP_IMPORTER = 'import_cards'

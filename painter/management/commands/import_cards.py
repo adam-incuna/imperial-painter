@@ -1,9 +1,10 @@
 import re
 
+from django.conf import settings
 from django.core.management.base import BaseCommand
 from openpyxl import load_workbook
 
-from painter.models import Card, DataFile
+from painter.models import Card
 
 
 class Command(BaseCommand):
@@ -24,22 +25,6 @@ class Command(BaseCommand):
         if filename.endswith(extension):
             return filename
         return filename + extension
-
-    def get_and_store_filenames(self, **options):
-        """
-        If no filenames are supplied, use the stored ones.  Otherwise, clear any stored
-        filenames and create new ones.
-        """
-        filenames = options['filenames']
-
-        if not filenames:
-            filenames = [df.name for df in DataFile.objects.all()]
-        else:
-            DataFile.objects.all().delete()
-            for filename in filenames:
-                DataFile.objects.create(name=filename)
-
-        return filenames
 
     def load_all_worksheets(self, filenames, verbosity=0):
         """
@@ -247,9 +232,8 @@ class Command(BaseCommand):
         """DO ALL THE THINGS"""
         verbosity = options['verbosity']
 
-        # Get the right filenames and ensure they're in sync with the stored DataFiles
-        # (one way or another).
-        filenames = self.get_and_store_filenames(**options)
+        # The filenames are defined in a setting.
+        filenames = settings.IP_DATA_FILES
         if not filenames:
             return
 
