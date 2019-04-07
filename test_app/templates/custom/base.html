@@ -1,18 +1,16 @@
 {% load index %}
 {% load static %}
 
-<div class="full-card">
-    <h1>{{ name }}</h1>
+<h1>{{ name }}</h1>
 
-    {% block template_name %}
-        <h3>Base Template</h3>
-    {% endblock %}
+{% block template_name %}
+    <h3>Base Template</h3>
+{% endblock %}
 
-    <p>Attribute: {{ c.attribute }}</p>
+<p>Attribute: {{ c.attribute }}</p>
 
-    <ul>
-        {% for text_item in c.long_text %}
-            <li>{{ text_item|safe }}</li>
-        {% endfor %}
-    </ul>
-</div>
+<ul>
+    {% for text_item in c.long_text %}
+        <li>{{ text_item|safe }}</li>
+    {% endfor %}
+</ul>
