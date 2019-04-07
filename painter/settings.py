@@ -12,7 +12,6 @@ INSTALLED_APPS = (
     'painter',
 
     'django_extensions',
-    'tablib',
 
     'django.contrib.auth',
     'django.contrib.contenttypes',
