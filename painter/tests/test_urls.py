@@ -8,7 +8,7 @@ class TestPainterURLs(URLTestCase):
         self.assert_url_matches_view(
             view=views.CardDisplayReload,
             expected_url='/',
-            url_name='card_display_reload',
+            url_name='card_display',
         )
 
     def test_card_display_noreload(self):

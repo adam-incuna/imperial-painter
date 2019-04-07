@@ -1,8 +1,15 @@
+import importlib
+
+from django.conf import settings
 from django.views.generic import ListView
 
 from . import models
-from .management.commands import import_cards, import_laundry
 
+# settings.IP_IMPORTER needs to point to a management command.
+# There are two default ones:
+#  * painter.management.commands.import_cards
+#  * painter.management.commands.import_laundry
+ip_importer = importlib.import_module(settings.IP_IMPORTER)
 
 class CardDisplay(ListView):
     model = models.Card
@@ -11,13 +18,6 @@ class CardDisplay(ListView):
 
 class CardDisplayReload(CardDisplay):
     def get(self, request, *args, **kwargs):
-        importer = import_cards.Command()
-        importer.handle(filenames=[], verbosity=1)
-        return super().get(request, *args, **kwargs)
-
-
-class LaundryDisplayReload(CardDisplay):
-    def get(self, request, *args, **kwargs):
-        importer = import_laundry.Command()
+        importer = ip_importer.Command()
         importer.handle(filenames=[], verbosity=1)
         return super().get(request, *args, **kwargs)

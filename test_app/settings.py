@@ -10,6 +10,7 @@ ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = (
     'painter',
+    'test_app',
 
     'django_extensions',
 
@@ -28,7 +29,7 @@ MIDDLEWARE_CLASSES = (
 
 SECRET_KEY = 'Django requires this to be set, but this project does not make use of it'
 
-ROOT_URLCONF = 'painter.urls'
+ROOT_URLCONF = 'test_app.urls'
 
 TEMPLATES = [
     {
@@ -45,7 +46,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'painter.wsgi.application'
+WSGI_APPLICATION = 'test_app.wsgi.application'
 
 DATABASES = {
     'default': dj_database_url.config(
@@ -61,3 +62,10 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'painter/static')
 STATIC_URL = os.environ.get('STATIC_URL', '/static/')
 
 TEST_RUNNER = 'painter.tests.runner.TestRunner'
+
+# Imperial Painter settings
+IP_DATA_FILES = [
+    os.path.join(BASE_DIR, 'Test Cards.xlsx'),
+    os.path.join(BASE_DIR, 'Test Cards.xlsx'),
+]
+IP_IMPORTER = 'painter.management.commands.import_cards'
