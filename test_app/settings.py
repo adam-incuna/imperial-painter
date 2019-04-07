@@ -66,5 +66,6 @@ TEST_RUNNER = 'painter.tests.runner.TestRunner'
 # Imperial Painter settings
 IP_DATA_FILES = [
     os.path.join(BASE_DIR, 'Test Cards.xlsx'),
+    os.path.join(BASE_DIR, 'Test Cards.xlsx'),
 ]
-IP_IMPORTER = 'import_cards'
+IP_IMPORTER = 'painter.management.commands.import_cards'
