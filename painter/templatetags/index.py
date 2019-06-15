@@ -17,3 +17,9 @@ def index(List, i):
 @register.filter
 def lookup(dictionary, key):
     return dictionary.get(key)
+
+
+# With thanks to https://stackoverflow.com/a/12797728
+@register.filter
+def times(number):
+    return range(number)

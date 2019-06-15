@@ -1,3 +1,4 @@
+{% load index %}
 {% load staticfiles %}
 
 <!DOCTYPE html>
@@ -16,34 +17,32 @@
     <table class="spoiler">
         <tr>
             {% for object in object_list %}
-                {% with '1'|rjust:object.quantity as num_copies %}
-                    {% for i in num_copies %}
+                {% for i in object.quantity|times %}
 
-                        {# Include the card itself. #}
-                        <td class="card-cell">
-                            <div class="full-card">
-                                {% include object.get_template with c=object.data name=object.name %}
-                            </div>
-                        </td>
+                    {# Include the card itself. #}
+                    <td class="card-cell">
+                        <div class="full-card">
+                            {% include object.get_template with c=object.data name=object.name %}
+                        </div>
+                    </td>
 
-                        {# Create a new row every three cards. #}
-                        {% cycle 0 0 1 as linebreak silent %}
-                        {% if linebreak %}
-                            </tr>
+                    {# Create a new row every three cards. #}
+                    {% cycle 0 0 1 as linebreak silent %}
+                    {% if linebreak %}
+                        </tr>
 
-                            {# Break onto a new printed page every three rows. #}
-                            {% cycle 0 0 1 as pagebreak silent %}
-                            {% if pagebreak and not forloop.parentloop.parentloop.last  %}
-                                </table>
-                                <div class="page-break"></div>
-                                <table class="spoiler">
-                            {% endif %}
-
-                            <tr>
+                        {# Break onto a new printed page every three rows. #}
+                        {% cycle 0 0 1 as pagebreak silent %}
+                        {% if pagebreak and not forloop.parentloop.parentloop.last  %}
+                            </table>
+                            <div class="page-break"></div>
+                            <table class="spoiler">
                         {% endif %}
 
-                    {% endfor %}
-                {% endwith %}
+                        <tr>
+                    {% endif %}
+
+                {% endfor %}
             {% endfor %}
         </tr>
     </table>
