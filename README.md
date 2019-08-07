@@ -14,6 +14,7 @@ The test app is a basic Django app that allows you to see `imperial-painter` in 
 * Activate it with `source bin/activate`.
 * Install requirements using `pip install -r requirements.txt`.
 * Ensure Postgres is running ([instructions are here](https://www.postgresql.org/) if you need to set it up).
+* Create a database in `psql` with `create database painter;`.
 * Run migrations with `python manage.py migrate`.
 
 Once it's set up, you can run it using `make paint` or `python manage.py runserver`.
