@@ -23,3 +23,9 @@ def lookup(dictionary, key):
 @register.filter
 def times(number):
     return range(number)
+
+
+# With thanks to https://stackoverflow.com/a/15820445
+@register.filter
+def to_int(number):
+    return int(number)
