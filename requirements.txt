@@ -1,5 +1,5 @@
 # Actual requirements
-django==2.2.4
+django==2.2.13
 django-extensions==2.1.6
 django-jsonfield==1.1.0
 dj_database_url>=0.3.0
