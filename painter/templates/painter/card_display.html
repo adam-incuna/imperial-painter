@@ -21,7 +21,7 @@
 
                     {# Include the card itself. #}
                     <td class="card-cell">
-                        <div class="full-card">
+                        <div class="template-{{ object.template_name }} full-card">
                             {% include object.get_template with c=object.data name=object.name %}
                         </div>
                     </td>

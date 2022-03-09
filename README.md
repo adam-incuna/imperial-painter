@@ -72,7 +72,7 @@ IP_IMPORTER = 'painter.management.commands.import_cards'
 
 Add a `styles/custom.less` file to a static files directory.
 
-The contents of each card are wrapped in a `<div class="full-card">`. All of your styles should be applied within that class.
+The contents of each card are wrapped in a `<div class="template-[template name] full-card">`. All of your styles should be applied within that class.
 
 Less allows you to import other Less files, so you can split your styles across multiple files if you need despite the singular entry point. If you're unfamiliar with Less, raw CSS is perfectly valid Less, so you can use that too (just make sure it has the `.less` file extension).
 

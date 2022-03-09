@@ -238,7 +238,7 @@ class Command(BaseCommand):
         return [
             Card(
                 name=name,
-                template_name=self.ensure_extension(template.strip(), 'html'),
+                template_name=template.strip(),
                 quantity=quantity,
                 data=card_data,
             )

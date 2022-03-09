@@ -16,9 +16,18 @@ class Card(models.Model):
         return self.name
 
     def get_template(self):
-        if self.template_name.startswith('custom/'):
-            return self.template_name
-        return 'custom/' + self.template_name
+        """
+        Translate the stored template_name into a path to a template in the custom/ directory.
+        """
+        template = self.template_name
+
+        if not template.endswith(".html"):
+            template += ".html"
+
+        if not template.startswith("custom/"):
+            template = "custom/" + template
+
+        return template
 
     class Meta:
         ordering = ['pk']
