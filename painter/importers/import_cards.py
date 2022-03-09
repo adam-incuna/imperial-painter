@@ -196,8 +196,15 @@ class Command(BaseCommand):
 
         The base implementation treats the first row as the headers of a table,
         and all the other rows as entries.
+
+        If the worksheet is empty - such as the extra default sheets in an Excel
+        file - or only contains a header row, return an empty list.
         """
         all_rows = list(worksheet.rows)
+
+        if len(all_rows) < 2:
+            return []
+
         return self.parse_table(all_rows)
 
     def convert_to_cards(self, card_data):
