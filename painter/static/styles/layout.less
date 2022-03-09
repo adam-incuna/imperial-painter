@@ -37,10 +37,13 @@ body {
     size: A4 portrait;
 }
 
-.spoiler {
+table.spoiler {
     // The full card table.  Displays a thin grey line between cards as a guideline
     // for cutting and as a visual separator.
-    border-spacing: 2rem solid gray;
+    width: 100%;
+    table-layout: fixed;
+
+    border-spacing: 2rem;
     background-color: gray;
 
     .card-cell {
