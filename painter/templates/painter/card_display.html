@@ -14,37 +14,36 @@
 </head>
 
 <body>
-    <table class="spoiler">
-        <tr>
+    <div class="spoiler">
+        <div class="row">
             {% for object in object_list %}
                 {% for i in object.quantity|times %}
 
                     {# Include the card itself. #}
-                    <td class="card-cell">
+                    <div class="card-cell">
                         <div class="template-{{ object.template_name }} full-card">
                             {% include object.get_template with c=object.data name=object.name %}
                         </div>
-                    </td>
+                    </div>
 
                     {# Create a new row every three cards. #}
                     {% cycle 0 0 1 as linebreak silent %}
                     {% if linebreak %}
-                        </tr>
+                        </div>
 
                         {# Break onto a new printed page every three rows. #}
                         {% cycle 0 0 1 as pagebreak silent %}
                         {% if pagebreak and not forloop.parentloop.parentloop.last  %}
-                            </table>
-                            <!-- <div class="page-break">I am a page break</div> -->
-                            <table class="spoiler">
+                            </div>
+                            <div class="spoiler">
                         {% endif %}
 
-                        <tr>
+                        <div class="row">
                     {% endif %}
 
                 {% endfor %}
             {% endfor %}
-        </tr>
-    </table>
+        </div>
+    </div>
 </body>
 </html>

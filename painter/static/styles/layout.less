@@ -25,7 +25,7 @@ body {
 @media print {
     // When printing, wrap onto a new page after each table (every three rows).
     // This avoids splitting cards across pages.
-    table.spoiler {
+    .spoiler {
         page-break-inside: avoid;
         page-break-after: always;
     }
@@ -37,35 +37,52 @@ body {
     size: A4 portrait;
 }
 
-table.spoiler {
+.spoiler {
     // The full card table.  Displays a thin grey line between cards as a guideline
     // for cutting and as a visual separator.
-    width: 100%;
-    table-layout: fixed;
+    width: auto;
+    max-width: 100%;
 
-    border-spacing: 2rem;
-    background-color: gray;
+    display: flex;
+    flex-flow: column;
+    align-items: flex-start;
 
-    .card-cell {
-        // Apply a thick black border around each card to aid visually and with
-        // cutting out sheets of printed cards.
-        border: 10rem solid #000;
-        vertical-align: top;
-        position: relative;
-        background-color: #fff;
+    .row {
+        width: auto;
+        max-width: 100%;
 
-        width: 235rem;
-        height: 325rem;
+        display: flex;
+        flex-flow: row;
+        justify-content: flex-start;
 
-        .full-card {
-            // Fix the positions of card-wrapping <div>s to ensure the objects inside them don't
-            // push the card out of place or break the formatting.
-            width: 100%;
-            height: 100%;
-            display: block;
-            overflow: hidden;
+        .card-cell {
+            // Fix the size of these cards so that when printed on an A4 sheet,
+            // they line up (roughly) with the size of Magic the Gathering cards.
+            width: 235rem;
+            height: 325rem;
+            flex: 0 0 auto;
+
+            // Include a small margin around each card as a guideline for cutting.
+            margin: 1rem;
+
+            // Apply a thick black border around each card to aid visually and with
+            // cutting out sheets of printed cards.
+            border: 10rem solid #000;
+
+            // Ensure cards start with a printer-friendly white background.
+            background-color: #fff;
+
             position: relative;
+
+            .full-card {
+                // Fix the positions of card-wrapping <div>s to ensure the objects inside them don't
+                // push the card out of place or break the formatting.
+                width: 100%;
+                height: 100%;
+                display: block;
+                overflow: hidden;
+                position: relative;
+            }
         }
     }
-
 }
