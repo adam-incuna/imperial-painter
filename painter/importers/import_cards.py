@@ -216,20 +216,27 @@ class Command(BaseCommand):
         # Remove the name, template, and quantity fields from the rest of the data,
         # since they go directly on the Card instance.
         name = card_data.pop('name', None)
-        template = card_data.pop('template', None)
+        template_string = card_data.pop('template', None)
         quantity = card_data.pop('quantity', 1)
 
         # If it has both a name and a template, add it. Otherwise, leave it out.
         # This allows for blank/incomplete/ignored rows to exist in the Excel file.
-        if not name or not template:
+        if not name or not template_string:
             return []
 
-        return [Card(
-            name=name,
-            template_name=self.ensure_extension(template, 'html'),
-            quantity=quantity,
-            data=card_data,
-        )]
+        # If multiple templates are supplied, create one Card entry for each one
+        # (duplicating the card data).
+        template_list = template_string.split(',')
+
+        return [
+            Card(
+                name=name,
+                template_name=self.ensure_extension(template.strip(), 'html'),
+                quantity=quantity,
+                data=card_data,
+            )
+            for template in template_list
+        ]
 
     def handle(self, *args, **options):
         """DO ALL THE THINGS"""

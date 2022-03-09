@@ -26,7 +26,7 @@ Go to `127.0.0.1:8000` in your browser, and you should see some very rudimentary
 There are several components to Painter's API. Broadly, you need to:
 
 * Create one or more Excel files (`.xlsx`) that contain your card data. This should follow a specific format expected by the importer.
-* Add `painter` to your Django app's `NSTALLED_APPS`.
+* Add `painter` to your Django app's `INSTALLED_APPS`.
 * Set the `IP_IMPORTER` and `IP_DATA_FILES` settings in your `settings.py`.
 * Add `painter.urls` to a URLconf somewhere in your project.
 * Add one or more [Less files](http://lesscss.org/) (normal CSS files with a .less extension are also valid) to a static folder. Painter expects an entry point file under `styles/custom.less`; this should import any other Less files you've written.
@@ -38,8 +38,10 @@ The `test_app` is a small example of all of these steps - poking through that sh
 
 This varies based on the importer. The base `import_cards` expects a single table, filling an entire sheet, with the following columns:
 
-* `Name` - the name of a card.
+* `Name` - the name of a card. Uniqueness of names is not enforced.
 * `Template` - the name of a Django template file, without the `.html` or the file path leading up to it. For instance, a `Template` entry of `base` would resolve to `templates/custom/base.html`.
+    * You can include multiple template names this way, comma-separated - e.g. `character,items`.
+    * Any whitespace around template names is removed.
 * `Quantity` - optional. This allows you to print a card multiple times.
 * Any other columns you wish. These will be converted into variables (see the "Django template API" section).
     * The first blank column header will be taken as the end of the sheet, so your table must be contiguous.
