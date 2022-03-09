@@ -22,19 +22,19 @@ body {
     font-family: "Arial";
 }
 
-@media all {
-    // We don't want page breaks to show up normally...
-    .page-break { display: none; }
-}
-
 @media print {
-    // ...but we'll need them when printing, for sure.
-    .page-break { display: block; page-break-before: always; }
+    // When printing, wrap onto a new page after each table (every three rows).
+    // This avoids splitting cards across pages.
+    table.spoiler {
+        page-break-inside: avoid;
+        page-break-after: always;
+    }
 }
 
 @page {
     // Set the margin when printing.
     margin: 10mm 10mm 10mm 10mm;
+    size: A4 portrait;
 }
 
 .spoiler {
