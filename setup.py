@@ -17,7 +17,6 @@ setup(
     ],
 
     author="Adam Thomas",
-    author_email="sortoflikechess@gmail.com",
     description="A tool for generating prototype cards from Excel files and Django templates",
     url="https://github.com/adam-thomas/imperial-painter",
     classifiers=[
